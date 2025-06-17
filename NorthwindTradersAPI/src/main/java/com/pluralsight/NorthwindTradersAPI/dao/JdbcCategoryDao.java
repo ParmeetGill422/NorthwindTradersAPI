@@ -1,7 +1,6 @@
 package com.pluralsight.NorthwindTradersAPI.dao;
 
 import com.pluralsight.NorthwindTradersAPI.models.Category;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -11,10 +10,8 @@ import java.util.List;
 
 @Component
 public class JdbcCategoryDao implements CategoryDao {
-
     private final DataSource dataSource;
 
-    @Autowired
     public JdbcCategoryDao(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -29,10 +26,10 @@ public class JdbcCategoryDao implements CategoryDao {
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                categories.add(new Category(
-                        rs.getInt("category_id"),
-                        rs.getString("category_name")
-                ));
+                Category category = new Category();
+                category.setCategoryId(rs.getInt("category_id"));
+                category.setCategoryName(rs.getString("category_name"));
+                categories.add(category);
             }
 
         } catch (SQLException e) {
@@ -45,6 +42,7 @@ public class JdbcCategoryDao implements CategoryDao {
     @Override
     public Category getById(int id) {
         String sql = "SELECT category_id, category_name FROM categories WHERE category_id = ?";
+        Category category = null;
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -53,16 +51,67 @@ public class JdbcCategoryDao implements CategoryDao {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return new Category(
-                        rs.getInt("category_id"),
-                        rs.getString("category_name")
-                );
+                category = new Category();
+                category.setCategoryId(rs.getInt("category_id"));
+                category.setCategoryName(rs.getString("category_name"));
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return null;
+        return category;
     }
+
+    @Override
+    public Category insert(Category category) {
+        String sql = "INSERT INTO categories (category_name) VALUES (?)";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            stmt.setString(1, category.getCategoryName());
+
+            stmt.executeUpdate();
+
+            ResultSet keys = stmt.getGeneratedKeys();
+            if (keys.next()) {
+                category.setCategoryId(keys.getInt(1));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return category;
+    }
+    @Override
+    public void update(int id, Category category) {
+        String sql = "UPDATE categories SET category_name = ? WHERE category_id = ?";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, category.getCategoryName());
+            stmt.setInt(2, id);
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    @Override
+    public void delete(int id) {
+        String sql = "DELETE FROM categories WHERE category_id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error deleting category", e);
+        }
+    }
+
+
 }

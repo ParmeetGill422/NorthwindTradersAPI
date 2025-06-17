@@ -2,7 +2,6 @@ package com.pluralsight.NorthwindTradersAPI.controllers;
 
 import com.pluralsight.NorthwindTradersAPI.dao.CategoryDao;
 import com.pluralsight.NorthwindTradersAPI.models.Category;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,7 +12,6 @@ public class CategoriesController {
 
     private final CategoryDao categoryDao;
 
-    @Autowired
     public CategoriesController(CategoryDao categoryDao) {
         this.categoryDao = categoryDao;
     }
@@ -27,4 +25,16 @@ public class CategoriesController {
     public Category getCategoryById(@PathVariable int id) {
         return categoryDao.getById(id);
     }
+
+    @PostMapping
+    public Category addCategory(@RequestBody Category category) {
+        return categoryDao.insert(category);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable int id) {
+        categoryDao.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

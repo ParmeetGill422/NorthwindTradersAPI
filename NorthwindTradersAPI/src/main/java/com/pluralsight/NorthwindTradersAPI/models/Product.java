@@ -1,12 +1,16 @@
 package com.pluralsight.NorthwindTradersAPI.models;
 
+import java.math.BigDecimal;
+
 public class Product {
     private int productId;
     private String productName;
     private int categoryId;
-    private double unitPrice;
+    private BigDecimal unitPrice; // ✅ use BigDecimal
 
-    public Product(int productId, String productName, int categoryId, double unitPrice) {
+    public Product() {} // ✅ no-arg constructor for deserialization
+
+    public Product(int productId, String productName, int categoryId, BigDecimal unitPrice) {
         this.productId = productId;
         this.productName = productName;
         this.categoryId = categoryId;
@@ -22,6 +26,6 @@ public class Product {
     public int getCategoryId() { return categoryId; }
     public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
 
-    public double getUnitPrice() { return unitPrice; }
-    public void setUnitPrice(double unitPrice) { this.unitPrice = unitPrice; }
+    public BigDecimal getUnitPrice() { return unitPrice; }
+    public void setUnitPrice(BigDecimal unitPrice) { this.unitPrice = unitPrice; }
 }
