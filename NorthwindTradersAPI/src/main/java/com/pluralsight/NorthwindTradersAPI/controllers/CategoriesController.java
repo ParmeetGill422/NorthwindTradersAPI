@@ -1,4 +1,5 @@
 package com.pluralsight.NorthwindTradersAPI.controllers;
+import org.springframework.http.ResponseEntity;
 
 import com.pluralsight.NorthwindTradersAPI.dao.CategoryDao;
 import com.pluralsight.NorthwindTradersAPI.models.Category;
